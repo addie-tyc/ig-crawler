@@ -88,5 +88,6 @@ def crawl_ig(account):
 
     return res
 
-print(crawl_ig("yga0721"))
+if __name__ == "__main__":
+    print(crawl_ig("yga0721"))
 
