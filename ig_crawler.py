@@ -39,14 +39,16 @@ def crawl_ig(account):
                 driver.find_elements_by_class_name('coreSpritePagingChevron')[-1]
             except:
                 break
-
-    story_btn = driver.find_elements_by_class_name('coreSpritePagingChevron')[0]
-    while story_btn:
-        try:
-            story_btn.click()
-            driver.find_elements_by_class_name('coreSpritePagingChevron')[0]
-        except:
-            break
+    try:
+        story_btn = driver.find_elements_by_class_name('coreSpritePagingChevron')[0]
+        while story_btn:
+            try:
+                story_btn.click()
+                driver.find_elements_by_class_name('coreSpritePagingChevron')[0]
+            except:
+                break
+    except:
+        pass
 
     time.sleep(1)
     pageSource = driver.page_source
@@ -54,7 +56,7 @@ def crawl_ig(account):
 
     soup = bs(pageSource, "html.parser")
     title = soup.find("title").text.split(account)[0][:-2]
-    posts = soup.select("main div header section ul li span")[0].text
+    posts = soup.select("main div header section ul li span")[0].text.split(" ")[0]
 
     temp = soup.select("main div header section ul li a span")
     follower = temp[0].text
@@ -68,14 +70,19 @@ def crawl_ig(account):
         "follower": follower,
         "following": following,
         "story_highlights": [],
-        "suggesteds": []}
+        "suggesteds": [],
+        "new_posts": []}
 
     temp = soup.select("main div div div div div ul")
-    story_highlights = temp[0].findAll("li")
-    for story in story_highlights:
-        if story.find("img"):
-            res["story_highlights"].append({"title": story.find("img")["alt"].split(" ")[0], 
-                                   "img": story.find("img")["src"]})
+    try:
+        story_highlights = temp[0].findAll("li")
+        for story in story_highlights:
+            if story.find("img"):
+                res["story_highlights"].append({"title": story.find("img")["alt"].split(" ")[0], 
+                                    "img": story.find("img")["src"]})
+    except:
+        pass
+
     if len(temp) >= 3:
         suggesteds = temp[2].findAll("li")
         for suggest in suggesteds:
@@ -85,6 +92,9 @@ def crawl_ig(account):
     
     CLASS = soup.select("article div div div div")[0]["class"] 
     new_posts = soup.findAll("div", class_=CLASS)
+    for post in new_posts:
+        a = post.find("a")
+        res["new_posts"].append(f"https://instagram.com{a['href']}")
 
     return res
 
