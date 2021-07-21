@@ -66,12 +66,16 @@ def crawl_ig(account):
     blue_check = soup.find("span", title="已驗證")
 
     res = {"title": title,
+        "blue_check": 0,
         "posts": posts,
         "follower": follower,
         "following": following,
         "story_highlights": [],
         "suggesteds": [],
         "new_posts": []}
+
+    if blue_check:
+        res["blue_check"] = 1
 
     temp = soup.select("main div div div div div ul")
     try:
